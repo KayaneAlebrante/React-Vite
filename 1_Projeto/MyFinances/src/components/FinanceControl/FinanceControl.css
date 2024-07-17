@@ -1,0 +1,9 @@
+.container_finance{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container_finance div:nth-child(2){
+    margin-left: 1.5rem;
+}
