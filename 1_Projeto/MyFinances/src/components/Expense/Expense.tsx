@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPercent } from "@fortawesome/free-solid-svg-icons";
 import Button from "../Button/Button";
 import "./Expense.css";
+import { FormatMoney } from "../../utils";
 
 const Expense = ({ emitMovement, currentExpenses, currentBalance }: ExpenseProps) => {
   const [renderInputForm, setRenderInputForm] = useState(false);
@@ -61,7 +62,7 @@ const Expense = ({ emitMovement, currentExpenses, currentBalance }: ExpenseProps
           <FontAwesomeIcon icon={faPercent} color="#e43f4d" size="2x" />
           <h2>Despesas</h2>
         </header>
-        <h3>R$ {currentExpenses > 0 ? currentExpenses : "R$ 0"}</h3>
+        <h3>{currentExpenses > 0 ? FormatMoney(String(currentExpenses)) : "R$ 0"}</h3>
         {!renderInputForm && (
           <Button
             action={handleRenderInputForm}
