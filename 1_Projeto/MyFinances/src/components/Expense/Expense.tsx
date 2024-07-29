@@ -3,8 +3,8 @@ import { ExpenseProps } from "../../models/interfaces/ExpenseProps/ExpenseProps"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPercent } from "@fortawesome/free-solid-svg-icons";
 import Button from "../Button/Button";
-import "./Expense.css";
 import { FormatMoney } from "../../utils";
+import { ActionsContainer, Card, CardHeader, Container, FormContainer, FormInput } from "../Balance/Balance";
 
 const Expense = ({ emitMovement, currentExpenses, currentBalance }: ExpenseProps) => {
   const [renderInputForm, setRenderInputForm] = useState(false);
@@ -56,12 +56,12 @@ const Expense = ({ emitMovement, currentExpenses, currentBalance }: ExpenseProps
   }
 
   return (
-    <div className="expense_container">
-      <div className="expense_card">
-        <header className="expense_header">
+    <Container>
+      <Card>
+        <CardHeader>
           <FontAwesomeIcon icon={faPercent} color="#e43f4d" size="2x" />
           <h2>Despesas</h2>
-        </header>
+        </CardHeader>
         <h3>{currentExpenses > 0 ? FormatMoney(String(currentExpenses)) : "R$ 0"}</h3>
         {!renderInputForm && (
           <Button
@@ -74,23 +74,24 @@ const Expense = ({ emitMovement, currentExpenses, currentBalance }: ExpenseProps
         )}
         {renderInputForm && (
           <form onSubmit={formSubmitHandler}>
-            <div className={`input_form_container ${!isFormValid ? "invalid" : ""}`}>
-              <input
+            <FormContainer invalid={!isFormValid}>
+              <FormInput
                 type="text"
                 placeholder="Nome"
                 className="expense_input"
                 value={inputName}
                 onChange={handleInputNameForm}
               />
-              <input
+              <FormInput
                 type="number"
                 placeholder="Valor"
                 className="expense_input"
                 value={inputValue}
                 onChange={handleInputValueForm}
               />
-            </div>
-            <div className="actions_form_buttons_container">
+            </FormContainer>
+
+            <ActionsContainer>
               <Button
                 title="Cancelar"
                 priority="Output"
@@ -102,11 +103,11 @@ const Expense = ({ emitMovement, currentExpenses, currentBalance }: ExpenseProps
                 title="Adicionar"
                 priority="Input"
               />
-            </div>
+            </ActionsContainer>
           </form>
         )}
-      </div>
-    </div>
+      </Card>
+    </Container>
   );
 }
 
