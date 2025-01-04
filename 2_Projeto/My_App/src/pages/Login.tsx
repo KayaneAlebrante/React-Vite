@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 import loginImg from "../assets/daniel-korpai-HyTwtsk8XqA-unsplash.jpg";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from "../firebase/firebaseConection";
+import { toast } from "react-toastify";
+import "react-toastify/ReactToastify.css";
 
 function Login() {
     const [displayLogin, setDisplayLogin] = useState(true);
@@ -10,6 +14,7 @@ function Login() {
     const [singUpEmailInput, setSingUpEmailInput] = useState("");
     const [singUpPasswordInput, setSingUpPasswordInput] = useState("");
     const [isSingUpFormValid, setIsSingUpFormValid] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
 
     const erroAlert = (
         <p className="flex justify-center text-red-300">
@@ -34,11 +39,32 @@ function Login() {
         setDisplaySignUp(false);
       };
 
-      const handleExecutLogin = (event: React.MouseEvent<HTMLFormElement, MouseEvent> ) =>{
+      const handleExecutLogin = async (event: React.MouseEvent<HTMLFormElement, MouseEvent> ) =>{
+        setIsLoading(true);
         event.preventDefault();
 
         loginEmailInput.trim().length > 0 && loginPasswordInput.trim().length > 0 ? setIsLoginFormValid(true):
          setIsLoginFormValid(false);
+
+         await signInWithEmailAndPassword(auth, loginEmailInput, loginPasswordInput).then(
+            () =>{
+                toast.success("Bem vindo de volta");
+                setDisplayLogin(true);
+                setDisplaySignUp(false);
+                setIsLoading(false);
+            }
+         ).catch((err: {code: string}) =>{
+            setIsLoading(false);
+            if(err.code === "auth/wrong-password"){
+                toast.error("Senha incorreta!");
+            }else if(err.code === "auth/user-not-found"){
+                toast.error("Email não existe, crie sua conta!");
+            }else{
+                toast.error("Erro ao realizar Login!");
+            }
+            
+            setIsSingUpFormValid(false);
+         });
 
          console.log("Dados do Input", {
             email: loginEmailInput,
@@ -56,19 +82,33 @@ function Login() {
         eventValue && state(eventValue);
       }
       
-      const handleExecutSingUp = (event: React.MouseEvent<HTMLFormElement, MouseEvent> ) =>{
+      const handleExecutSingUp = async (event: React.MouseEvent<HTMLFormElement, MouseEvent> ) =>{
+        setIsLoading(true);
         event.preventDefault();
 
         singUpEmailInput.trim().length > 0 && singUpPasswordInput.trim().length > 0 ? setIsSingUpFormValid(true):
         setIsSingUpFormValid(false);
 
-         console.log("Dados do SingUp", {
-            email: singUpEmailInput,
-            password: singUpPasswordInput,
-         });
+        await createUserWithEmailAndPassword(auth, singUpEmailInput, singUpPasswordInput).then(()=>{
+            setDisplayLogin(true);
+            setDisplaySignUp(false);
+            setIsLoading(false);
+            toast.success("Usuário Criado!");            
+            
+        }).catch((err: {code: string}) => {
+            if(err.code === "auth/weak-password"){
+                toast.error("Senha muito fraca, ultiliza outra!");
+            }else if(err.code === "auth/email-already-is-use"){
+                toast.error("Email já cadastrado!");
+            }else{
+                toast.error("Erro ao criar o usuário!");}
+            
+            setIsLoading(false);
+            setIsSingUpFormValid(false);
+        });
 
          setSingUpEmailInput("");
-         setSingUpEmailInput("");
+         setSingUpPasswordInput("");
       };
 
     return (
@@ -123,14 +163,15 @@ function Login() {
                     </div>
 
                     <div className="flex justify-center text-white py-2 hover:cursor-pointer hover:animate-pulse">
-                        <button type="button" onClick={(event) => handleDisplayCreateAccount(event)}>Criar conta</button>
+                        <button  type="button" onClick={(event) => handleDisplayCreateAccount(event)}>
+                            Criar Conta</button>
                     </div>
                     {!isLoginFormValid  && erroAlert}
                     <button
+                        disabled={isLoading}
                         type="submit"
                         className="w-full my-5 py-2 bg-orange-500 shadow-lg enabled:hover:shadow-orange-500/40 text-white font-semibold disabled:bg-orange-400 disable:shadow-none enabled:shadow-orange-500/50"
-                    >
-                        Fazer Login
+                    >{isLoading ? "Carregando...": "Fazer Login"}
                     </button>
                 </form>
                 )}
@@ -171,7 +212,7 @@ function Login() {
                         <div className="flex justify-center py-2 text-white hover:cursor-pointer hover: animate-pulse">
                             <button onClick={(event) => handleDisplayLogin(event)} type="button" >Fazer Login</button>
                         </div>
-                        <button type="submit" className="w-full my-5 py-2 bg-orange-500 shadow-lg enabled:hover:shadow-orange-500/40 text-white font-semibold rounded-lg disabled:bg-orange-400 disabled:shadow-none enabled:shadow-orange-500/50">Criar Conta</button>
+                        <button disabled={isLoading} type="submit" className="w-full my-5 py-2 bg-orange-500 shadow-lg enabled:hover:shadow-orange-500/40 text-white font-semibold rounded-lg disabled:bg-orange-400 disabled:shadow-none enabled:shadow-orange-500/50">{isLoading ? "Carregando...": "Criar Conta"}</button>
                     </form>
                 )}
             </div>
